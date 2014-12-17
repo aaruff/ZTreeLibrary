@@ -1,0 +1,139 @@
+treatment "in_place_fisher_yates_shuffle.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table session{
+		}
+		table logfile{
+		}
+		numsubjects = 1;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 1;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		v2IntegerVars = TRUE;
+		v2BooleanVars = TRUE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "You are making losses. Do you want to invest the showupfee in order to continue?";
+		showupfeeawayyestext = "Yes";
+		showupfeeawaynotext = "No";
+		moneyawaytext = "You are  making losses. Do you want to continue?";
+		moneyawayyestext = "Yes";
+		moneyawaynotext = "No";
+		bancruptwaittext = "Please wait until the experimenter unlocks your PC.";
+		program{
+			table = subjects;
+			do{
+				NULL = -1;
+				CARDS = 10;
+				array deck[CARDS];
+				matrix_size = 10*CARDS;
+				// bin*cards
+				array bins[matrix_size];
+				
+				iterator(iteration, 1, 10000).do {
+				    card = 1;
+				    //Label each card with an integer from 1 to CARDS
+				    while( card <= CARDS) {
+				        deck[card] = card;
+				        card = card + 1;
+				    }
+				
+				    // Shuffle algorithm
+				    card = CARDS;
+				    while (card > 1) 
+				    {
+				        randomCard = rounddown(card*random(), 1) + 1; 
+				        tempCard = deck[card];
+				        deck[card] = deck[randomCard];
+				        deck[randomCard] = tempCard;
+				
+				        card = card - 1;
+				    }
+				
+				    c = NULL;
+				    temp = NULL;
+				    iterator(bin, 1, CARDS).do {
+				        iterator(value, 1, CARDS).do {
+				            card = deck[bin];
+				            if (card == value)
+				            {
+				                index = (bin-1)*CARDS + value;
+				                c = bins[index];
+				                bins[index] = c + 1;
+				            }    
+				        }
+				    }
+				}
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = TRUE;
+				showNumPeriods = TRUE;
+				periodtext = "Period";
+				periodoftext = "of";
+				practiceperiodprefix = "Trial ";
+				showtime = TRUE;
+				timestr = "Remaining time [sec]:";
+				pleasedecidetext = "Please reach a decision.";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Text"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Please wait until the experiment continues.";
+				}
+			}
+		}
+	}
+	stage "Stage"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 15;
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+	}
+	period "1"{
+		subject 1{
+			group = 1;
+		}
+	}
+}
